@@ -27,7 +27,7 @@ Develop confidence in integrating multiple packages into a cohesive pipeline.
 
 ---
 __Licensing:__ 
-This work is licensed under Creative Commons Attribution-ShareAlike 4.0 International License.
+This work is licensed under <https://creativecommons.org/licenses/by-sa/4.0/>
 
 __Useful links:__
 - https://ourcodingclub.github.io/tutorials/tutorials/ - Coding Club tutorial on how to make tutorials
