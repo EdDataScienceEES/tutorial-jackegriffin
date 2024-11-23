@@ -1,7 +1,7 @@
 
-# Package Literacy in R: Essential and Advanced Tools
+# Beyond the Basics: Exploring Advanced and Specialized R Packages
 
-## Learn the essentials of R packages for data manipulation, starting with core tools and progressing to advanced ones.
+## Broaden your horizon of R packages for data manipulation.
 
 ## By Jack Griffin (s2204427@ed.ac.uk)
 
