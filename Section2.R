@@ -38,22 +38,220 @@ addTen <- function(.x) {
 library(tidyverse)
 map(.x = c(1, 4, 7),
     .f = addTen)
-# What's even better is that you don't need to specify he argument names
-map
 
+# What's even better is that you don't need to specify the argument names
+map(c(1, 4, 7), addTen)
+# We can see the output applies the condition to each element of the vector: 1 = 11, 4 = 14, 7 = 17
+# No matter if the input object is a vector, a list or a data frame, map() always returns a list
+map(list(1, 4, 7), addTen)
+map(data.frame(a = 1, b = 4, c = 7), addTen)
+# Roger that?
 
+# If we wanted the output to be some other object type, we need to use a different function. For instance to map the input to a numeric (double vector), you can use the map_dbl() ("map to double") function
+map_dbl(c(1, 4, 7), addTen)
 
+# Using the same logic, we can map to a character vector using map_chr() ("map to a character")
+map_chr(c(1, 4, 7), addTen)
 
+# If we wanted to return a data frame then we can use the map_df() function.
+# Be sure that for each iteration you have consistent column names
+# map_df will automatically bind the rows of each iteration
+# For the code below, we want to return a data frame where the columns correspond to the original number and the number plus ten
+map_df(c(1, 4, 7), function(.x) {
+  return(data.frame(old_number = .x, 
+                    new_number = addTen(.x)))
+})
 
+# The function modify() is similar in nature to map() functions, but always returns an object the same type as the input object
+library(tidyverse)
+modify(c(1, 4, 7), addTen)
+modify(list(1, 4, 7), addTen)
+modify(data.frame(1, 4, 7), addTen)
 
+# Modify also has modify_if() that only applies the function to elements that satisfy a specific criteria
+# This is specified by a "predicate function", the second argument called .p
+modify_if(.x = list(1, 4, 7),
+          .p = function(x) x > 5,
+          .f = addTen)
+# Here, only the third entry is modified as it is greater than 5
 
+# The tilde-dot shorthand for functions ----
+# To make the code more concise you can use the tilde-dot shorthand for anonymous functions
+# In R, an anonymous function is a function that is created on the fly without being given a name. 
+# Instead of defining it separately and assigning it to a variable, you define it directly in the code where it's needed. 
+# This is particularly useful in purrr when you need to apply a quick custom operation inside a map function.
+# Unlike normal function arguments that can by be anything you like, the tilde-dot function argument is always .x.
+# Thus, instead of defining the addTen() function separately, we could use the tilde-dot shorthand
+map_dbl(c(1, 4, 7), ~{.x + 10})
 
+# For the next section of this tutorial we will use the LPI birds dataset from the Living Planet Index.
+# For this task, each function will first be demonstrated using a simple numeric example, and then will be demonstrated using a more complex practical example based on the forestfires dataset
 
+# Import data
+LPI_data_orig <- read.csv("data/LPI_birds.csv")
 
+# And we can define a copy of the original dataset that we will clean and operate on
+LPI_data <- LPI_data_orig
 
+# Thankfully, this data is already pretty tidy though there are a few NAs, we can drop rows that have NAs using base R's na.omit() function
+LPI_data <- na.omit(LPI_data)
 
+# We also need to reshape the data into long format
+LPI_data <- LPI_data %>%
+  pivot_longer(cols = 25:69,
+               names_to = 'year',
+               values_to = 'pop')
 
+# And now extract the numeric alues from the year column
+LPI_data <- LPI_data %>%
+  mutate(year = as.numeric(gsub("X", "", year)))
 
+# Since LPI_data is a data frame, the map_() functions will iterate over each column.
+# An example of simple usage of the map_() functions is to summarize each column.
+# For instance, you can identify the type of each column by applying the class() function to each column.
+# Since the output of the class() function is a character, we will use the map_chr() function
+# Apply the class() function to each column
+penguins1 %>% map_chr(class)
+LPI_data %>% map_chr(class)
+# This is very handy to get a quick snapshot of what you're working with in a dataset
+# Also, using pipes is great to use instead of adding the data again as an argument
+
+# Similarly, if you want to identify the number of distinct values in each column, you could apply the n_distinct() function from the dplyr package to each column.
+# Since the output of n_distinct() is a numeric (a double), you may want to use the map_dbl() function.
+# This would provide the results of each iteration as a concatenation in a numeric vector
+# Apply the n_distinct() function to each column
+penguins1 %>% map_dbl(n_distinct)
+LPI_data %>% map_dbl(n_distinct)
+
+# We can make this a bit more complicated by combining a few different summaries using map_df()
+# When making things a bit more complicated we normally also have to define anonymous function to apply to each column
+# We can do this using the tilde-dot notation too.
+# Then, once he columns have been iterated through, the map_df() function combines the data frames row-wise into a single data fram
+penguins1 %>% map_df(~(data.frame(n_distinct = n_distinct(.x),
+                                  class = class(.x))))
+LPI_data %>% map_df(~(data.frame(n_distinct = n_distinct(.x),
+                                  class = class(.x))))
+# Note that here we have lost the variable names
+# We can tell map_df() to include them using the .id argument
+penguins1 %>% map_df(~(data.frame(n_distinct = n_distinct(.x),
+                                  class = class(.x))),
+                     .id = "variable")
+LPI_data %>% map_df(~(data.frame(n_distinct = n_distinct(.x),
+                                  class = class(.x))),
+                     .id = "variable")
+
+# Maps with multiple input objects ----
+# Now time for some fancier stuff
+# For example, say if we want to perform a map that iterates through two objects
+# The following code uses map functions to create a list of plots
+
+# The map function that maps over two objects instead of 1 is called map2().
+# The first two arguments are the two objects you want to iterate over, and the third is the function (with two arguments, one for each object)
+map2(.x = object1, # the first object to iterate over
+     .y = object2, # the second object to iterate over
+     .f = plotFunction(.x, .y))
+# Note that this code wont run, and is purely exemplary - object1 and object2 need to be properly defined
+# First, you need to define a vector (or list) and a paired vector (or list) that you want to iterate through.
+# In this example:
+# - the first iteration will correspond to the first island in the island vector and the first year in the year vector
+# - the second iteration will correspond to the second island in the island vector and the second year in the year vector
+
+# First, let's get our vectors of family and years, starting by obtaining all distinct combinations of families and years that appear in the data
+cfyear <- LPI_data %>%
+  distinct(Family, year)
+cfyear
+
+# Then extract the continent and year pairs as separate vectors
+family <- cfyear %>%
+  pull(Family) %>%
+  as.character
+years <- cfyear %>%
+  pull(year)
+
+# When using the tilde-do short-hand, the anonymous agruments will be .x for the first object being iterated over,a nd .y for the second object being iterated over
+# Before jumping into this, however, it is a good idea to first figure out what the code will be for just the first iteration
+.x <- family [1]
+.y <- years[1]
+
+# Make a scatterplot of population vs common names
+LPI_data %>%
+  filter(Family == .x,
+         year == .y) %>%
+  ggplot() +
+  geom_point(aes(x = pop, y = Common.Name)) +
+  ggtitle(glue::glue(.x, " ", .y))
+
+# This seems to have worked, so now we can copy and paste the code into the map2 function
+plot_list <- map2(.x = family,
+                  .y = years,
+                  .f = ~{
+                    LPI_data %>%
+                      filter(Family == .x,
+                             year == .y) %>%
+                      ggplot() +
+                      geom_point(aes(x = pop, y = Common.Name)) +
+                      ggtitle(glue::glue(.x, " ", .y))
+                  })
+
+# We can look at a few of the entries of the list to see that they make sense
+plot_list[[1]]
+plot_list[[22]]
+plot_list[[76]]
+
+# List columns and Nested data frames ----
+# Tibbles are tidyverse. 
+# Some crazy stuff starts happening when you learn that tibble columns can be lists (as opposed to vectors, which is what they are usually).
+# This is where the difference between tibbles and data frames becomes very real
+
+# For instance, a tibble can be "nested" where the tibble is essentially split into separate data frames based on a grouping variable, and these separate data frames are stored as entries of a list (that is then stored in the data column of the data frame)
+# Here we can nest the data frame by a chosen column
+LPI_nested <- LPI_data %>%
+  group_by(Family) %>%
+  nest()
+LPI_nested
+# Looking at the output, the first column is the variable that we grouped by, Family, and the second column is the rest of the data frame corresponding to that group (as if you had filtered the data frame to the specific continent).
+
+# To see this, the following code shows that the first entry in the first entry in the data column corresponds to the entire gaminder dataset for Asia
+LPI_nested$data[[1]]
+
+# We can get the same output using dplyr's pluck() function
+LPI_nested %>%
+  pluck("data", 1)
+
+# At this point, rightly so, you may be asking why would you ever want to nest you data frame?
+# Until you realise that you now have the power to use dplyr manipulations on more complex objects that can be stored in a list.
+# However, since actions such as mutate() are applied directly to the entire column (which is usually a vector, which is fine), we run into issues when we try to manipulate a list
+# For instance, since columns are usually vectors, normal vectorized functions work just fine on them
+tibble(vec_col = 1:10) %>%
+  mutate(vec_sum = sum(vec_col))
+
+# But when the column is a list, vectorized functions don't know what to do with them, and we get an error that says Error in sum(x) : invalid 'type' (list) of argument
+# Try,
+tibble(list_col = list(c(1, 5, 7), 
+                       5, 
+                       c(10, 10, 11))) %>%
+  mutate(list_sum = sum(list_col))
+# See the error appear
+
+# To apply mutate functions to a list-column, you need to wrap the function you want to apply in a map function
+tibble(list_col = list(c(1, 5, 7), 
+                       5, 
+                       c(10, 10, 11))) %>%
+  mutate(list_sum = map(list_col, sum))
+# And since map() returns a list itself, the list_sum column is itself a list
+tibble(list_col = list(c(1, 5, 7), 
+                       5, 
+                       c(10, 10, 11))) %>%
+  mutate(list_sum = map(list_col, sum)) %>% 
+  pull(list_sum)
+
+# And if we wanted it to be vector we could use the map_dbl() function instead
+tibble(list_col = list(c(1, 5, 7), 
+                       5, 
+                       c(10, 10, 11))) %>%
+  mutate(list_sum = map_dbl(list_col, sum))
+
+# Nesting the LPI data ----
 
 
 
