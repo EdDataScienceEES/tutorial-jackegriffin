@@ -307,7 +307,7 @@ modify_if(.x = list(1, 4, 7),
 ```
 Looking at the output for the above code, we can see that only the third entry is modified as it is greater than 5.
 
-#### The tilde-dot shorthand for functions
+#### The tilde-dot shorthand for functions and tidying
 To make the code more concise you can use the tilde-dot shorthand for anonymous functions.
 In 'R', an anonymous function is a function that is created on the fly without being given a name. Instead of defining it separately and assigning it to a variable, you define it directly in the code where it's needed. This is particularly useful in `purrr` when you need to apply a quick custom operation inside a map function.
 Unlike normal function arguments that can by be anything you like, the tilde-dot function argument is always `.x`.
@@ -339,6 +339,14 @@ LPI_data <- LPI_data %>%
 # And now extract the numeric values from the year column
 LPI_data <- LPI_data %>%
   mutate(year = as.numeric(gsub("X", "", year)))
+
+# We should also create a new column to normalize the population outputs (scale the values to a range of 0 to 1)
+LPI_data$scalepop <- (LPI_data$pop - min(LPI_data$pop, na.rm = TRUE)) / 
+  (max(LPI_data$pop, na.rm = TRUE) - min(LPI_data$pop, na.rm = TRUE))
+
+# Finally, we should make the common name and family columns factors so we can later use these in creating a model
+LPI_data$Common.Name <- as.factor(LPI_data$Common.Name)
+LPI_data$family <- as.factor(LPI_data$Family)
 ```
 Since LPI_data is a data frame, the `map_()` functions will iterate over each column. An example of simple usage of the `map_()` functions is to summarize each column. 
 For instance, you can identify the type of each column by applying the `class()` function to each column. 
@@ -395,7 +403,7 @@ cfyear <- LPI_data %>%
   distinct(Family, year) # Use the names consistent with how you've formatted the columns in your dataset
 cfyear
 
-# Then extract the continent and year pairs as separate vectors
+# Then extract the family and year pairs as separate vectors
 family <- cfyear %>%
   pull(Family) %>%
   as.character
@@ -416,7 +424,7 @@ LPI_data %>%
   filter(Family == .x,
          year == .y) %>%
   ggplot() +
-  geom_point(aes(x = pop, y = Common.Name)) +
+  geom_point(aes(x = scalepop, y = Common.Name)) +
   ggtitle(glue::glue(.x, " ", .y))
 ```
 
@@ -429,7 +437,7 @@ plot_list <- map2(.x = family,
                       filter(Family == .x,
                              year == .y) %>%
                       ggplot() +
-                      geom_point(aes(x = pop, y = Common.Name)) +
+                      geom_point(aes(x = scalepop, y = Common.Name)) +
                       ggtitle(glue::glue(.x, " ", .y))
                   })
 ```
@@ -480,7 +488,147 @@ tibble(list_col = list(c(1, 5, 7),
                        5, 
                        c(10, 10, 11))) %>%
   mutate(list_sum = sum(list_col))
+# See the error appear
 ```
+To apply mutate functions to a list-column, you need to wrap the function you want to apply in a map function.
+```
+tibble(list_col = list(c(1, 5, 7), 
+                       5, 
+                       c(10, 10, 11))) %>%
+  mutate(list_sum = map(list_col, sum))
+```
+And since `map()` returns a list itself, the `list_sum` column is itself a list.
+```
+tibble(list_col = list(c(1, 5, 7), 
+                       5, 
+                       c(10, 10, 11))) %>%
+  mutate(list_sum = map(list_col, sum)) %>% 
+  pull(list_sum)
+```
+And if we wanted it to be a vector we could use th `map_dbl()` function instead.
+```
+tibble(list_col = list(c(1, 5, 7), 
+                       5, 
+                       c(10, 10, 11))) %>%
+  mutate(list_sum = map_dbl(list_col, sum))
+```
+
+#### Nesting the LPI data
+Let's havea look again at the LPI dataset.
+I want to calculate the average population within each family and add it as a new column using `mutate()`.
+
+Based on the example above, why do you think the following code doesn't work?
+```
+LPI_nested %>%
+  mutate(avg_pop = mean(data$Family))
+```
+We were hopeing that this code would extract the Family column from each data frame.
+But we are applying the mutate() to the column, which itself doesn't have an entry called Family since it's a list of a data frame.
+
+How can we access the Family column of the data frames stored in the data list?
+Using a map function of course!
+
+Think of an individual data frame as `.x`.
+Again, we will first figure out the code for calculating the mean life expectancy for just the first entry of the column.
+The following code defines `.x` to be the first entry of the data column (this is the data frame for Phasianidae).
+```
+# The first entry of the "data" column
+.x <- LPI_nested %>%
+  pluck("data", 1)
+.x
+```
+Then to calculate the average population for Phasianidae, we could write:
+```
+mean(.x$scalepop)
+```
+
+So, if we copy and paste this into the tilde-dot anonymous function argument of the `map_dbl()` function within `mutate()`, we can get what we want.
+```
+LPI_nested %>%
+  mutate(avg_pop = map_dbl(data, ~{mean(.x$scalepop)}))
+```
+
+This code iterates through the data frames stored in the data column, returns the average population for each data frame, and concatenates the results into a numeric vector (which is then stored as a column called `avg_pop`).
+It would be very observant of you in saying this is something we could have done a lot more easily using standard `dplyr` commands (such as `summarise()`).
+Fair enough I say, but hopefully it helped you understand why you need to wrap mutate functions inside map functions when applying them to list columns.
+
+If you don't find the example above totally inspiring - worry not.
+I ensure you, this next example will **blow you away**.
+
+The next example will demonstrate how to fit a model separately for each family, and evaluate it, all within a single tibble.
+... Let that sink in.
+First, let's fit a linear model for each continent and store it as a list-column.
+If the data frame for a single family is `.x`, then I want to fit `lm(scalepop ~ year + Common.Name, data = .x)`.
+Lets check if this works first.
+```
+lm(scalepop ~ year + Common.Name, data = .x)
+```
+Ideal.
+
+We can now copy and pate this model into the `map()` function within the `mutate()`.
+Fit a model separately for each family:
+```
+LPI_nested <- LPI_nested %>%
+  mutate(lm_obj = map(data, ~lm(scalepop ~ year + Common.Name, data = .x)))
+```
+Ahh, unfortunately, we run into an error here.
+We get an error because the `Common.Name` variable has only one level in one or more groups, which makes it invalid as a predictor in the `lm()` function.
+Because we are trying to keep this tutorial relevant to Ecology, we need to adapt the data slightly to make it work, perhaps when you do this with your own data that contains multiple numeric factors it will all be a lot easier.
+
+Fear not, we can diagnose and fix the issue by doing the following:
+```
+problematic_groups <- LPI_nested %>%
+  mutate(n_unique_names = map_int(data, ~n_distinct(.x$Common.Name))) %>%
+  filter(n_unique_names < 2)
+problematic_groups
+# Prints out all families that have only 1 factor level
+
+# Filter out problematic groups and only include those that can be used in the model
+LPI_nested <- LPI_nested %>%
+  mutate(n_unique_names = map_int(data, ~n_distinct(.x$Common.Name))) %>%
+  filter(n_unique_names > 1) %>%
+  select(-n_unique_names) # Remove helper column
+
+# Now let's try again with the model
+LPI_nested <- LPI_nested %>%
+  mutate(lm_obj = map(data, ~lm(scalepop ~ year + Common.Name, data = .x)))
+LPI_nested
+```
+Panic over. All we had to do was remove some of the species that didn't have very much data going for them.
+Let's have a look a what we have.
+Where the first linear model (for Phasianidae) is:
+```
+LPI_nested %>% pluck("lm_obj", 1)
+```
+
+We can then predict the response for the data stored in the `data` column using the corresponding linear model.
+So we have two objects we want to iterate over: the data and the linear model object.
+This means we want to use `map2()`.
+When things get a bit more complicated, it is good to use multiple function arguments, so we are going to use a full anonymous function rather than the tilde-dot shorthand.
+```
+# Predict the response for each family
+LPI_nested <- LPI_nested %>%
+  mutate(pred = map2(lm_obj, data, function(.lm, .data) predict(.lm, .data)))
+LPI_nested
+```
+
+And now we can calculate the correlation between the predicted response and the true response, this time using the `map2()_dbl` function since we want the output to be a numeric vector rather than a list of single elements.
+```
+# Calculate the correlation between observed and predicted response for each family
+LPI_nested <- LPI_nested %>%
+  mutate(cor = map2_dbl(pred, data, function(.pred, .data) cor(.pred, .data$scalepop)))
+LPI_nested
+```
+
+Now you might be a little bit over it now, and I thank you for your focus and perseverance, but can we just say that that is pretty cool.
+
+
+
+
+
+
+
+
 
 
 
