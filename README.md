@@ -14,16 +14,16 @@
 ---
 ## Tutorial aims
 __1.__
-Understand the role of different R packages in data manipulation.
+Understand the role of two different R packages for data manipulation.
 
 __2.__
-Gain confidence in using essential packages for basic data manipulation.
+Build confidence in exploring technical packages.
 
 __3.__
-Explore advanced packages for specialized tasks and efficient workflows.
+Develop new techniques for common data manipulation tasks.
 
 __4.__
-Develop confidence in integrating multiple packages into a cohesive pipeline.
+Work towards gaining package literacy.
 
 ---
 __Licensing:__ 
