@@ -17,6 +17,7 @@ The aim of this content is to equip users with the knowledge and skills to effic
 
 ---
 __Licensing:__ 
+
 This work is licensed under [Creative Commons Attribution-ShareAlike 4.0 International License](https://creativecommons.org/licenses/by-sa/4.0/)
 
 Living Planet Index data use policy can be found [here](https://livingplanetindex.org/documents/data_agreement.pdf)
