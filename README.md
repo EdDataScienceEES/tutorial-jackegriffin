@@ -1,6 +1,5 @@
 
-# Beyond the Basics: Exploring Advanced and Specialized R Packages
-
+# Beyond the Basics: R Coding Club tutorial on Advanced Package Literacy
 ## Broaden your horizon of R packages for data manipulation.
 
 ## By Jack Griffin (s2204427@ed.ac.uk)
@@ -12,18 +11,9 @@
 ## This repository contains information regarding the tutorial found HERE
 
 ---
-## Tutorial aims
-__1.__
-Understand the role of two different R packages for data manipulation.
+## Tutorial aim
 
-__2.__
-Build confidence in exploring technical packages.
-
-__3.__
-Develop new techniques for common data manipulation tasks.
-
-__4.__
-Work towards gaining package literacy.
+The aim of this content is to equip users with the knowledge and skills to efficiently manipulate and analyze data in `R` using both the `data.table` and `purrr` packages. This includes mastering high-performance data manipulation with `data.table` (e.g., importing, filtering, and transforming data) and streamlining workflows with `purrr`'s functional programming tools (e.g., iteration, mapping, and handling nested data).
 
 ---
 __Licensing:__ 
