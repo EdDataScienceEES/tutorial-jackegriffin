@@ -163,7 +163,8 @@ penguins[penguins$species == "Adelie" & penguins$body_mass_g > 4000, c("species"
 penguins_dt[species == "Adelie" & body_mass_g > 4000, ]
 # This saves a good amount of time in the long run and is a major advantage
 ```
-# SYNTAX DIAGRAM
+
+![data.table syntax diagram](Screenshot 2024-11-29 at 11.45.55.png)
 
 #### 2(e). How to select given columns
 
