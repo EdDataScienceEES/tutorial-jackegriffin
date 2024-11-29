@@ -1,35 +1,58 @@
-## Welcome to my R Coding Club tutorial on Advanced Package Literacy in `R`!
+# Welcome to my R Coding Club tutorial on Advanced Package Literacy in `R`!
 
 
-## Tutorial Aims
+# Tutorial Aim:
+The aim of this content is to equip users with the knowledge and skills to efficiently manipulate and analyze data in `R` using both the `data.table` and `purrr` packages. This includes mastering high-performance data manipulation with `data.table` (e.g., importing, filtering, and transforming data) and streamlining workflows with `purrr`'s functional programming tools (e.g., iteration, mapping, and handling nested data).
 
-### <a href="#section1"> 1. Introduction</a>
+# Tutorial Content
+### [1. Introduction](#1-introduction)
+### [2. High-Performance data manipulation using `data.table`](#2-high-performance-data-manipulation-using-datatable)
+- [a. Introduction to `data.table`](#2a-introduction-to-datatable)
+- [b. Importing data using `data.table`](#2b-importing-data-using-datatable)
+- [c. Converting `data.frame` to `data.table`](#2c-converting-dataframe-to-datatable)
+- [d. Filtering rows based on conditions](#2d-filtering-rows-based-on-conditions)
+- [e. How to select multiple columns using a character vector](#2f-how-to-select-multiple-columns-using-a-character-vector)
+- [f. How to drop columns](#2g-how-to-drop-columns)
+- [g. How to rename columns](#2h-how-to-rename-columns)
+- [h. Creating a new column from existing columns](#2i-creating-a-new-column-from-existing-columns)
+- [i. Grouping](#2j-grouping)
+### [3. Efficient workflows with `purrr`](#3-efficient-workflows-with-purrr)
+- [a. Introduction to `purrr`](#3a-introduction-to-purrr)
+- [b. Map functions: Easier iteration in `R`](#3b-map-functions-easier-iteration-in-r)
+- [c. Simplest usage: Repeated looping with map](#3c-simplest-usage-repeated-looping-with-map)
+- [d. The tilde-dot shorthand for functions and tidying](#3d-the-tilde-dot-shorthand-for-functions-and-tidying)
+- [e. Maps with multiple input objects](#3e-maps-with-multiple-input-objects)
+- [f. List columns and nested data frames](#3f-list-columns-and-nested-data-frames)
+- [g. Nesting the LPI data](#3g-nesting-the-lpi-data)
 
-### <a href="#section2"> 2. High-Performance Data Manipulation using `data.table`</a>
-
-### <a href="#section3"> 3. Efficient workflows with `purrr`</a>
-
-
----------------------------
+---
 
 You can get all of the resources for this tutorial from <a href="https://github.com/EdDataScienceEES/tutorial-jackegriffin.git">this GitHub repository</a>. Clone and download the repo as a zip file, then unzip it.
 
+---
 
-## <a name="section1"> 1. Introduction</a>
+### 1. Introduction
+
+---
 
 `R` is an incredibly powerful tool, but let's face it - the true magic of `R` lies in the rich ecosystem of packages available. Think of each `R` package as a specialised toolbox, with each one tailored for specific tasks. 
 From wrangling messy data sets to building beautiful visualisations or running complex statistical models, there is likely a package that can make your life easier. Yet from this we can be susceptible to something called **package fatigue** (I may coin this term as my own). With a wide range of choices comes an uncertainty as to what to use. 
 Alas, this tutorial is here to help you navigate some of the less used packages to help you build confidence and get to grips with the package world of `R`. 
 
-The `tidyverse` is a widely used and powerful set of R packages designed for data analysis, but it is not without its drawbacks. One of the main concerns with the `tidyverse` is its performance on very large datasets. Since `tidyverse` packages like `dplyr` process data in memory, they can struggle when working with datasets that exceed the available memory. This can lead to slow performance compared to alternatives like `data.table`, which is optimized for speed and memory efficiency. In this tutorial you will be using specialised packages such as: `data.table`, `purrr`, `broom`, `janitor`, `lubridate`
+The `tidyverse` is a widely used and powerful set of R packages designed for data analysis, but it is not without its drawbacks. One of the main concerns with the `tidyverse` is its performance on very large datasets. Since `tidyverse` packages like `dplyr` process data in memory, they can struggle when working with datasets that exceed the available memory. This can lead to slow performance compared to alternatives like `data.table`, which is optimized for speed and memory efficiency. Furthermore, occasionally the common `tidyverse` syntax can be a little confusing and cumbersome at times. In this tutorial you will be introduced to two packages you may not have used at all. These packages are `data.table` and `purrr`, both of which, when mastered, can be extremely efficient and tidy. But the main point of this tutorial is to teach you to not be intimidated by package names you don't recognise or functions you don't know. Instead of being intimidated by them, we can actually learn about them and use them. It can only take as little as just one hour to better understand and use that once unrecognisable and intimidating package name. In doing so, we will see the crazy world of `R` as a much more tangible and possible thing.
 
 So, let's make a start and start thinking about packages we may have not even heard of. Open `RStudio`, clone into the GitHub repository and create a new script by clicking on `File/ New File/ R Script` set the working directory and we are ready to go. 
 
-Today we will be using data from the **Living Planet Index** which is free, open source data and is a key indicator used to measure the state of global biodiversity by tracking changes in the population sizes of vertebrate species over time. Information regarding the Living Planet Index's licensing policy can be found in the GitHub repositories **README**. Other data we will be using will be imported from the web, or directly from an `R` package itself.
+Today we will be using data from the **Living Planet Index** which is free, open source data and is a key indicator used to measure the state of global biodiversity. Information regarding the Living Planet Index's licensing policy can be found in the GitHub repositories **README**. Other data we will be using will be imported from the web, or directly from an `R` package itself.
 
-## <a name="section2"> 2. High-Performance Data Manipulation Using `data.table`</a>
+---
 
-### Introduction to `data.table`
+### 2. High-performance data manipulation using `data.table`
+
+---
+
+#### 2(a). Introduction to `data.table`
+
 `data.table` is a package designed for fast and memory-efficient manipulation of large datasets. It provides a simple syntax to filter, summarize, and transform data, allw ithin a single framework. Unlike `dplyr`, when you perform an operation on a `data.table`, the changes are applied to the same object in memory, avoiding the overhead of duplicating the data. But we don't need to worry about that too much. Furthermore, `data.table` excels with it's speed and handling of massive datasets and is most often used when joining large tables or quickly summarizing data.
 
 So, follow along with this tutorial and code to better understand `data.table`
@@ -55,7 +78,8 @@ remove.packages("data.table")
 install.packages("data.table")
 library(data.table)
 ```
-#### Importing data using `data.table`
+
+#### 2(b). Importing data using `data.table`
 
 The way we work with data.tables is quite different to how we would normally work with data.frames. Before we gain mastery over this package, lets understand the differences first. 
 The `fread()` function (short for fast read) is data.tables equivalent to `read.csv()`. 
@@ -90,7 +114,8 @@ class(ff)
 ```
 The imported is stored directly as a `data.table`. As you can see from the `class(ff)` output, the `data.table` inherits from a `data.frame` class and therefore is a `data.frame` by itself. This means that any functions you may normally use on `data.frame` will also work just fine on `data.table`. Because the dataset we imported was relatively small, the `read.csv()`'s speed was good enough.
 
-#### Converting `data.frame` to `data.table`
+#### 2(c). Converting `data.frame` to `data.table`
+
 You can convert any `data.frame` into `data.table` using any one of these two approaches:
 1. `data.table(df)` or `as.data.table(df)`, where `(df)` is your chosen data frame
 2. `setDT(df)`  
@@ -126,7 +151,8 @@ class(penguins_copy)
 ```
 And vice versa, and vice versa...
 
-#### Filtering rows based on conditions
+#### 2(d). Filtering rows based on conditions
+
 The biggest difference between `data.frame` and `data.table` is that `data.table` is aware of its column names.
 So while filtering, passing only the column names inside the square brackets is perfect suitable, and very handy.
 ```
@@ -139,7 +165,8 @@ penguins_dt[species == "Adelie" & body_mass_g > 4000, ]
 ```
 # SYNTAX DIAGRAM
 
-#### How to select given columns
+#### 2(e). How to select given columns
+
 Let's now investigate how to subset columns.
 Different to `data.frame`, you cannot select a column by its numbered position.
 ```
@@ -150,7 +177,9 @@ Using `data.table`, better practice is to pass in the column name.
 ```
 penguins_dt[, species]
 ```
-#### How to select multiple columns using a character vector
+
+#### 2(f). How to select multiple columns using a character vector
+
 If your column name is present as a string in another variable (vector), you cannot call the column directly.
 Instead, you will need to additionally pass `with=FALSE`.
 ```
@@ -167,13 +196,17 @@ Roger that? If you want to select multiple columns directly, then enclose all th
 ```
 penguins_dt[, .(species, sex, island)]
 ```
-#### How to drop columns
+
+#### 2(g). How to drop columns
+
 We can drop columns by placing the column names into a vector and use the `!` in front of them - returning all columns except those present in the vector.
 ```
 drop_cols <- c("species", "sex", "island")
 penguins_dt[, !drop_cols, with = FALSE]
 ```
-#### How to rename columns
+
+#### 2(h). How to rename columns
+
 For this, we can use the `setnames()` function as normal for both `data.table` and `data.frame`.
 The `setnames()` function takes the current name and new name as arguments and changes the column names in place without any copying of data.
 ```
@@ -181,7 +214,9 @@ setnames(penguins_dt, 'penguinid', 'observation')
 colnames(penguins_dt)
 # 'penguinid column is renamed to 'observation'
 ```
-#### Creating a new column from existing columns
+
+#### 2(i). Creating a new column from existing columns
+
 You can indeed create a new column as you normally might with `data.frame`, but with `data.table`, you can create a column from within square brackets - saving keystrokes
 ```
 # data.frame syntax (also works on data.table)
@@ -197,7 +232,9 @@ penguins_dt[, `:=`(bill_body_ratio = bill_length_mm / body_mass_g,
                    bill_volume = pi * (bill_depth_mm / 2)^2 * bill_length_mm)]
 penguins_dt
 ```
-#### Grouping
+
+#### 2(j). Grouping
+
 Let us now move on to the second major and awesome feature of R `data.table`: grouping using `by`.
 In base `R`, grouping is achieved by using the `aggregate()` function. This basic syntax can be a bit cumbersome and hard to remember
 While not sacrificing any functionality, we can use the `by` argument within square brackets.
@@ -215,8 +252,12 @@ Super, now you should feel more confident on how to use data.table to further yo
 
 For now, take a breather, grab a cup of tea or drink of your choice before we change the subject a tad and look at how we can use `purrr` to build efficient workflows
 
-## <a name="section3"> 3. Efficient workflows with `purrr`</a>
-### Introduction to `purrr`
+---
+### 3. Efficient workflows with `purrr`
+---
+
+#### 3(a). Introduction to `purrr`
+
 The `purrr` package is part of the `tidyverse` and focuses on functional programming, which is all about using functions to work with data. If you're not familiar with this concept, don't worry—it's just a way of automating repetitive tasks, similar to using functions like `apply()` in base `R`.
 At its core, `purrr` is designed to help you work with lists and perform iterations—that is, applying the same function to multiple elements, one at a time. Think of it as the `tidyverse`'s answer to base `R`'s `apply()` family, but with a more modern, flexible, and of course, tidy approach.
 If you’ve ever thought `purrr` seems too complicated to learn, this section will make it easier for you! We'll start with the `map()` functions, which are the foundation of `purrr`. By the end, you’ll see how powerful lists can be and how `purrr` can simplify your code.
@@ -227,7 +268,9 @@ my_first_list <- list(my_number = 5,
                       my_dataframe = data.frame(a = 1:3, b = c("q", "b", "z"), c = c("pandas", "are", "silly")))
 my_first_list
 ```
-### Map functions: Easier iteration in `R`
+
+#### 3(b). Map functions: Easier iteration in `R`
+
 A map function is a tool that lets you apply the same action or function to every element of an object. This could mean applying a function to each entry of a list, each element of a vector, or even each column of a data frame.
 If you’ve used base `R`'s `apply()` functions, you already know how map functions work. 
 
@@ -248,7 +291,8 @@ The input object to any map function is always either a vector (of any type), a 
 
 Since the first argument is always the data, pipes (`%>%`) come in very handy, allowing us to string together many functions by piping an object into the first argument of the next function.
 
-#### Simplest usage: Reapeated looping with map
+#### 3(c). Simplest usage: Repeated looping with map
+
 Fundamentally, maps are for iteration. In the below example, we will iterate through the vector `c(1, 4, 7)` by adding 10 to each entry.
 This function applied to a single number, which we will call .x can be defined as:
 ```
@@ -307,7 +351,8 @@ modify_if(.x = list(1, 4, 7),
 ```
 Looking at the output for the above code, we can see that only the third entry is modified as it is greater than 5.
 
-#### The tilde-dot shorthand for functions and tidying
+#### 3(d). The tilde-dot shorthand for functions and tidying
+
 To make the code more concise you can use the tilde-dot shorthand for anonymous functions.
 In 'R', an anonymous function is a function that is created on the fly without being given a name. Instead of defining it separately and assigning it to a variable, you define it directly in the code where it's needed. This is particularly useful in `purrr` when you need to apply a quick custom operation inside a map function.
 Unlike normal function arguments that can by be anything you like, the tilde-dot function argument is always `.x`.
@@ -380,7 +425,9 @@ LPI_data %>% map_df(~(data.frame(n_distinct = n_distinct(.x),
                      .id = "variable")
 # Sweet
 ```
-#### Maps with multiple input objects
+
+#### 3(e). Maps with multiple input objects
+
 Now, enough messing about. Time for some fancier stuff.
 Let's say we want to perform a map that iterates through two objects.
 The following code uses map functionns to create a list of plots.
@@ -448,7 +495,8 @@ plot_list[[22]]
 plot_list[[76]]
 ```
 
-#### List columns and nested data frames
+#### 3(f). List columns and nested data frames
+
 Tibbles are `tidyverse` dataframes.
 Some crazy stuff starts happening when you learn that tibble columns can be lists (as opposed to vectors, which is what they are usually).
 This is where the difference between tibbles and data frames becomes very real.
@@ -513,7 +561,8 @@ tibble(list_col = list(c(1, 5, 7),
   mutate(list_sum = map_dbl(list_col, sum))
 ```
 
-#### Nesting the LPI data
+#### 3(g). Nesting the LPI data
+
 Let's havea look again at the LPI dataset.
 I want to calculate the average population within each family and add it as a new column using `mutate()`.
 
