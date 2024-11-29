@@ -462,8 +462,9 @@ years <- cfyear %>%
   pull(year)
 ```
 
-When using the tilde-dot short-hand, the anonymous arguments will be `.x` for the first object being iterated over, and `.y` for the second object being iterated over.
-Before jumping into this, however, it is a good idea to first figure out what the code will be for just the first iteration.
+When using the tilde-dot shorthand, the anonymous arguments for the two objects being iterated over are `.x` for the first object and `.y` for the second.
+
+Before diving into the full iteration, it's a good idea to first test and understand how the code will work for just the first iteration. This will allow you to make sure everything is set up correctly before applying it to the entire dataset.
 ```
 .x <- family [1]
 .y <- years[1]
@@ -501,11 +502,9 @@ plot_list[[76]]
 
 #### 3(f). List columns and nested data frames
 
-Tibbles are `tidyverse` dataframes.
-Some crazy stuff starts happening when you learn that tibble columns can be lists (as opposed to vectors, which is what they are usually).
-This is where the difference between tibbles and data frames becomes very real.
+Tibbles are a special type of data frame from the `tidyverse` package, with some key differences. One of the interesting things about tibbles is that their columns can contain lists, whereas in traditional data frames, columns are typically vectors. This is where the real distinction between tibbles and data frames shows up.
 
-For instance, a tibble can be "nested" where the tibble is essentially split into separate data frames based on a grouping variable, and these separate data frames are stored as entries of a list (that is then stored in the data column of the data frame).
+For example, tibbles can be "nested," which means the data is divided into separate data frames based on a grouping variable. These separate data frames are then stored as list entries in a column of the tibble. This nesting allows for more complex and structured data organization. In the case of nesting, you can group the data by a column, which splits the data into smaller chunks (data frames), each of which is stored in a list within the tibble.
 Here we can nest the data frame by a chosen column.
 ```
 LPI_nested <- LPI_data %>%
@@ -513,8 +512,9 @@ LPI_nested <- LPI_data %>%
   nest()
 LPI_nested
 ```
-Looking at the output, the first column is the variable that we grouped by, `Family`, and the second column is the rest of the data frame corresponding to that group (as if you had filtered the data frame to the specific family).
-To better understand this, we can visualise it with the following code showing that the first entry in the first entry in the data column corresponds to the entire dataset for the first family: "Phasianidae".
+In the output, the first column represents the grouping variable, `Family`, while the second column contains the data for each group. Essentially, the second column stores the filtered subset of the data frame that corresponds to each unique family.
+
+To better understand this concept, we can visualize it. By examining the first entry in the data column, we can see that it contains the entire dataset for the first group, "Phasianidae," for example. This provides a clear view of how each group is isolated into its own smaller dataset within the tibble.
 ```
 LPI_nested$data[[1]]
 ```
@@ -524,10 +524,9 @@ LPI_nested %>%
   pluck("data", 1)
 ```
 
-At this point, rightly so, you may be asking why would you ever want to nest your data frame?
-Until you realise that you now have the power to use dplyr manipulations on more complex objects that can be stored in a list.
-However, since actions such as `mutate()` are applied directly to the entire column (which is usually a vector, which is fine), we run into issues when we try to manipulate a list.
-For instance, since columns are usually vectors, normal vectorized functions work just fine on them.
+At this point, you might be wondering why you would ever want to nest your data frame in the first place. The answer lies in the increased flexibility it provides. When your data is nested, you can apply `dplyr` manipulations to each subset of data within the list, which is useful for more complex tasks.
+
+However, there’s a challenge. Functions like `mutate()` in dplyr work directly on entire columns (which are typically vectors). But when you try to apply these functions to a list column—like those created when you nest your data—you run into issues. While vectorized functions work smoothly with columns that are vectors, they don’t behave the same way when applied to list columns, which require a different approach.
 ```
 tibble(vec_col = 1:10) %>%
   mutate(vec_sum = sum(vec_col))
@@ -567,23 +566,18 @@ tibble(list_col = list(c(1, 5, 7),
 
 #### 3(g). Nesting the LPI data
 
-Let's havea look again at the LPI dataset.
-I want to calculate the average population within each family and add it as a new column using `mutate()`.
+Let's take another look at the LPI dataset. We want to calculate the average population within each family and add it as a new column using `mutate()`.
 
 Based on the example above, why do you think the following code doesn't work?
 ```
 LPI_nested %>%
   mutate(avg_pop = mean(data$Family))
 ```
-We were hopeing that this code would extract the Family column from each data frame.
-But we are applying the mutate() to the column, which itself doesn't have an entry called Family since it's a list of a data frame.
+We were hoping the code would extract the `Family` column from each data frame, but the issue is that `mutate()` is being applied to the data column, which is a *list* of data frames. The data column itself doesn't directly contain a `Family` column, as it stores lists of data frames, not simple vectors.
 
-How can we access the Family column of the data frames stored in the data list?
-Using a map function of course!
+To access the `Family` column from the data frames within the `data` list, we can use a `map()` function.
 
-Think of an individual data frame as `.x`.
-Again, we will first figure out the code for calculating the mean life expectancy for just the first entry of the column.
-The following code defines `.x` to be the first entry of the data column (this is the data frame for Phasianidae).
+In this approach, we treat each individual data frame in the list as `.x`. To start, we can first calculate the mean population for just the first entry in the list, which corresponds to the `Phasianidae` data frame. This step helps us figure out the necessary code to calculate the value for the first entry before applying the same logic to the entire list of data frames.
 ```
 # The first entry of the "data" column
 .x <- LPI_nested %>%
@@ -601,18 +595,15 @@ LPI_nested %>%
   mutate(avg_pop = map_dbl(data, ~{mean(.x$scalepop)}))
 ```
 
-This code iterates through the data frames stored in the data column, returns the average population for each data frame, and concatenates the results into a numeric vector (which is then stored as a column called `avg_pop`).
-It would be very observant of you in saying this is something we could have done a lot more easily using standard `dplyr` commands (such as `summarise()`).
-Fair enough I say, but hopefully it helped you understand why you need to wrap mutate functions inside map functions when applying them to list columns.
+This code iterates through the data frames stored in the `data` column, calculates the average population for each data frame, and then combines these results into a numeric vector. This vector is stored as a new column called `avg_pop`.
 
-If you don't find the example above totally inspiring - worry not.
-I ensure you, this next example will **blow you away**.
+You might point out that this is something that could have been done more easily using standard `dplyr` functions like `summarise()`. And you're right! However, the goal of this exercise is to demonstrate why `mutate()` functions need to be wrapped inside `map()` when applied to list columns, which is a crucial concept when working with nested data frames.
 
-The next example will demonstrate how to fit a model separately for each family, and evaluate it, all within a single tibble.
-... Let that sink in.
-First, let's fit a linear model for each continent and store it as a list-column.
-If the data frame for a single family is `.x`, then I want to fit `lm(scalepop ~ year + Common.Name, data = .x)`.
-Lets check if this works first.
+If this example didn’t spark your excitement, don’t worry! The next example will truly **amaze** you.
+
+In the upcoming example, we will fit a model separately for each family, and evaluate it—all within a single tibble. Yes, you heard that right! Let it sink in.
+
+To begin, we'll fit a linear model for each continent and store the results in a list-column. For a single family, represented by .x, we will fit the model lm(scalepop ~ year + Common.Name, data = .x). Let’s check if this works first.
 ```
 lm(scalepop ~ year + Common.Name, data = .x)
 ```
@@ -624,11 +615,11 @@ Fit a model separately for each family:
 LPI_nested <- LPI_nested %>%
   mutate(lm_obj = map(data, ~lm(scalepop ~ year + Common.Name, data = .x)))
 ```
-Ahh, unfortunately, we run into an error here.
-We get an error because the `Common.Name` variable has only one level in one or more groups, which makes it invalid as a predictor in the `lm()` function.
-Because we are trying to keep this tutorial relevant to Ecology, we need to adapt the data slightly to make it work, perhaps when you do this with your own data that contains multiple numeric factors it will all be a lot easier.
+Ah, unfortunately, we encounter an error here. This happens because the `Common.Name` variable has only one level in one or more of the groups, making it unsuitable as a predictor in the `lm()` function.
 
-Fear not, we can diagnose and fix the issue by doing the following:
+Since we're focusing on Ecology in this tutorial, we need to make a small adjustment to the data to resolve this issue. When working with your own data that contains multiple numeric factors, this process should be much smoother.
+
+Don’t worry, though—there’s a simple fix. Here’s how we can diagnose and correct the problem:
 ```
 problematic_groups <- LPI_nested %>%
   mutate(n_unique_names = map_int(data, ~n_distinct(.x$Common.Name))) %>%
@@ -654,10 +645,9 @@ Where the first linear model (for Phasianidae) is:
 LPI_nested %>% pluck("lm_obj", 1)
 ```
 
-We can then predict the response for the data stored in the `data` column using the corresponding linear model.
-So we have two objects we want to iterate over: the data and the linear model object.
-This means we want to use `map2()`.
-When things get a bit more complicated, it is good to use multiple function arguments, so we are going to use a full anonymous function rather than the tilde-dot shorthand.
+Next, we can predict the response for the data stored in the data column using the corresponding linear model. Since we have two objects to iterate over—the data and the linear model—we'll use `map2()` for this task.
+
+When things get more complex, it's helpful to use multiple function arguments. So, instead of relying on the tilde-dot shorthand, we'll use a full anonymous function.
 ```
 # Predict the response for each family
 LPI_nested <- LPI_nested %>%
@@ -665,7 +655,7 @@ LPI_nested <- LPI_nested %>%
 LPI_nested
 ```
 
-And now we can calculate the correlation between the predicted response and the true response, this time using the `map2()_dbl` function since we want the output to be a numeric vector rather than a list of single elements.
+Now, we can calculate the correlation between the predicted response and the actual response. To do this, we will use the `map2_dbl()` function, as we want the output to be a numeric vector rather than a list of individual elements.
 ```
 # Calculate the correlation between observed and predicted response for each family
 LPI_nested <- LPI_nested %>%
@@ -674,6 +664,18 @@ LPI_nested
 ```
 
 Now you might be a little bit over it now, and I thank you for your focus and perseverance, but can we just say that that is pretty cool.
+
+**Well done**, you have successfully completed this tutorial!
+
+You should now have a strong grasp of how to leverage `data.table` for efficient data manipulation and how to streamline complex tasks with `purrr`, helping you make your `R` analysis both faster and more organized.
+
+More importantly, the next time you encounter a package or function that’s unfamiliar, we hope this tutorial has given you the confidence to dive deeper and explore its capabilities, rather than just treating it as a black box.
+
+Thank you for your dedication and focus throughout this journey. Your perseverance is truly appreciated.
+
+Good day.
+
+
 
 
 
