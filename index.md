@@ -123,7 +123,7 @@ You can convert any `data.frame` into `data.table` using any one of these two ap
 The difference between these two approaches is that `data.table(df)` will create a copy of `(df)` and convert it to a `data.table`, whereas `setDT(df)` converts it to a `data.table` and fully replaces it (converts it inplace, if you will).
 Now we will work with some great penguin data from `R`'s `palmerpenguins` package.
 
-![palmerpenguins diagram](palmerpenguins.png)
+<img src="palmerpenguins.png" alt="palmerpenguins logo" width="300"/>
 
 ```
 # Lets load a default dataframe from R's default datasets package and palmerpenguins package
@@ -168,7 +168,7 @@ penguins_dt[species == "Adelie" & body_mass_g > 4000, ]
 # This saves a good amount of time in the long run and is a major advantage
 ```
 
-![data.table syntax diagram](syntax.png)
+<img src="syntax.png" alt="data.table syntax diagram" width="600"/>
 
 #### 2(e). How to select given columns
 
