@@ -8,7 +8,7 @@
 
 ---
 
-## This repository contains information regarding the tutorial found HERE
+## This repository contains information regarding the tutorial found [HERE](https://eddatascienceees.github.io/tutorial-jackegriffin/)
 
 ---
 ## Tutorial aim
