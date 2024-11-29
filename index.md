@@ -35,11 +35,15 @@ You can get all of the resources for this tutorial from <a href="https://github.
 
 ---
 
-`R` is an incredibly powerful tool, but let's face it - the true magic of `R` lies in the rich ecosystem of packages available. Think of each `R` package as a specialised toolbox, with each one tailored for specific tasks. 
-From wrangling messy data sets to building beautiful visualisations or running complex statistical models, there is likely a package that can make your life easier. Yet from this we can be susceptible to something called **package fatigue** (I may coin this term as my own). With a wide range of choices comes an uncertainty as to what to use. 
-Alas, this tutorial is here to help you navigate some of the less used packages to help you build confidence and get to grips with the package world of `R`. 
+`R` is an incredibly powerful tool, but let's face it—the true magic of `R` lies in the rich ecosystem of packages available. Think of each `R` package as a specialized toolbox, with each one tailored for specific tasks.
 
-The `tidyverse` is a widely used and powerful set of R packages designed for data analysis, but it is not without its drawbacks. One of the main concerns with the `tidyverse` is its performance on very large datasets. Since `tidyverse` packages like `dplyr` process data in memory, they can struggle when working with datasets that exceed the available memory. This can lead to slow performance compared to alternatives like `data.table`, which is optimized for speed and memory efficiency. Furthermore, occasionally the common `tidyverse` syntax can be a little confusing and cumbersome at times. In this tutorial you will be introduced to two packages you may not have used at all. These packages are `data.table` and `purrr`, both of which, when mastered, can be extremely efficient and tidy. But the main point of this tutorial is to teach you to not be intimidated by package names you don't recognise or functions you don't know. Instead of being intimidated by them, we can actually learn about them and use them. It can only take as little as just one hour to better understand and use that once unrecognisable and intimidating package name. In doing so, we will see the crazy world of `R` as a much more tangible and possible thing.
+From wrangling messy data sets to building beautiful visualisations or running complex statistical models, there is likely a package that can make your life easier. Yet, from this, we can become susceptible to something called **package fatigue** (I may coin this term as my own). With a wide range of choices comes an uncertainty as to what to use.
+
+Alas, this tutorial is here to help you navigate some of the less-used packages to help you build confidence and get to grips with the package world of `R`.
+
+The `tidyverse` is a widely used and powerful set of `R` packages designed for data analysis, but it is not without its drawbacks. One of the main concerns with the `tidyverse` is its performance on very large datasets. Since `tidyverse` packages like dplyr process data in memory, they can struggle when working with datasets that exceed the available memory. This can lead to slow performance compared to alternatives like `data.table`, which is optimized for speed and memory efficiency. Furthermore, the common tidyverse syntax can occasionally be a little confusing and cumbersome.
+
+In this tutorial, you will be introduced to two packages you may not have used at all: `data.table` and `purrr`. Both of these, when mastered, can be extremely efficient and tidy. But the main point of this tutorial is to encourage you to not feel intimidated by package names you don't recognize or functions you don't know. Instead of being daunted by them, we can learn about them and incorporate them into our workflows. It can take as little as one hour to better understand and use what was once an unrecognizable and intimidating package name. By doing so, we’ll begin to see the crazy world of `R` as a much more tangible and accessible space.
 
 So, let's make a start and start thinking about packages we may have not even heard of. Open `RStudio`, clone into the GitHub repository and create a new script by clicking on `File/ New File/ R Script` set the working directory and we are ready to go. 
 
@@ -53,7 +57,7 @@ Today we will be using data from the **Living Planet Index** which is free, open
 
 #### 2(a). Introduction to `data.table`
 
-`data.table` is a package designed for fast and memory-efficient manipulation of large datasets. It provides a simple syntax to filter, summarize, and transform data, allw ithin a single framework. Unlike `dplyr`, when you perform an operation on a `data.table`, the changes are applied to the same object in memory, avoiding the overhead of duplicating the data. But we don't need to worry about that too much. Furthermore, `data.table` excels with it's speed and handling of massive datasets and is most often used when joining large tables or quickly summarizing data.
+`data.table` is a package designed to handle large datasets quickly and efficiently, using minimal memory. It allows you to filter, summarize, and transform data all within the same framework. Unlike `dplyr`, `data.table` modifies the data directly in memory, which means it doesn’t need to create duplicate copies of the data. You don’t need to worry about that too much, though. What’s important is that `data.table` is known for its speed, especially when working with large tables or summarizing data quickly.
 
 So, follow along with this tutorial and code to better understand `data.table`
 
@@ -64,7 +68,7 @@ library(tidyverse)
 install.packages("palmerpenguins")
 library(palmerpenguins)
 ```
-It's recommended to run `install.packages()` to get the latest version of `data.table` on the CRAN repository. But if you want to get the latest development version however, you can get it from GitHub as well.
+It’s a good idea to use `install.packages() to get the latest version of data.table from CRAN. However, if you want to access the latest development version, you can also install it from GitHub.
 ```
 # Install using CRAN
 install.packages(data.table)
@@ -81,10 +85,11 @@ library(data.table)
 
 #### 2(b). Importing data using `data.table`
 
-The way we work with data.tables is quite different to how we would normally work with data.frames. Before we gain mastery over this package, lets understand the differences first. 
-The `fread()` function (short for fast read) is data.tables equivalent to `read.csv()`. 
-Akin to `read.csv`, it works from a file in your local computer as well as file hosted on the internet. On top of this, it is at least 20 times faster! This is especially useful when working with very large datasets (millions of rows).  
-Run the code below, and see how fast `fread()` is. It creates a 1M rows csv file, then reads it back again. The time taken by `fread()` and `read.csv()` gets printed in the console.
+Working with data.tables is a bit different from working with data.frames. Before diving into the package, it's important to understand these differences.
+
+The `fread()` function (short for "fast read") is the `data.table` equivalent of `read.csv()`. Like `read.csv()`, it can read files from your local computer or from the internet. However, it’s at least 20 times faster, which is especially helpful when working with large datasets (millions of rows).
+
+Run the code below to see how fast `fread()` is. It will create a CSV file with 1 million rows and then read it back, printing the time taken by both `fread()` and `read.csv()` in the console.
 ```
 # Create a large .csv file
 set.seed(100)
@@ -104,15 +109,15 @@ system.time({m_dt <- fread('m2.csv')})
 #> 0.217  0.018 0.067
 # For my times, that's around at least 40x faster. Big difference
 ```
-IMPORTANT: Do not attempt to open the m2.csv or push it to github as it will crash your session - it is a very large dataset and I know this from experience...
+**IMPORTANT**: Do not attempt to open the m2.csv or push it to github as it will crash your session - it is a very large dataset and trust me, I know this from experience...
 
-Let's import some data based on forest fires using `fread()`
+Let's import some data based on forest fires using `fread()` to get some practice
 ```
 ff <- fread("https://archive.ics.uci.edu/ml/machine-learning-databases/forest-fires/forestfires.csv")
 head(ff)
 class(ff)
 ```
-The imported is stored directly as a `data.table`. As you can see from the `class(ff)` output, the `data.table` inherits from a `data.frame` class and therefore is a `data.frame` by itself. This means that any functions you may normally use on `data.frame` will also work just fine on `data.table`. Because the dataset we imported was relatively small, the `read.csv()`'s speed was good enough.
+When you import data with `fread()`, it is stored directly as a `data.table`. As shown by the `class(ff)` output, a `data.table` inherits from the `data.frame` class, meaning it is also a `data.frame`. This means you can use any functions that normally work on a `data.frame` with a `data.table` as well. Since the dataset we imported was relatively small, the speed of `read.csv()` was sufficient.
 
 #### 2(c). Converting `data.frame` to `data.table`
 
@@ -157,8 +162,7 @@ And vice versa, and vice versa...
 
 #### 2(d). Filtering rows based on conditions
 
-The biggest difference between `data.frame` and `data.table` is that `data.table` is aware of its column names.
-So while filtering, passing only the column names inside the square brackets is perfect suitable, and very handy.
+The key difference between a `data.frame` and a `data.table` is that `data.table` knows about its column names. This makes it easier and more efficient to filter and select columns by simply using their names inside square brackets.
 ```
 # Dataframe syntax
 penguins[penguins$species == "Adelie" & penguins$body_mass_g > 4000, c("species", "island", "body_mass_g")]
@@ -185,8 +189,7 @@ penguins_dt[, species]
 
 #### 2(f). How to select multiple columns using a character vector
 
-If your column name is present as a string in another variable (vector), you cannot call the column directly.
-Instead, you will need to additionally pass `with=FALSE`.
+If the column name is stored as a string in another variable (or vector), you can't directly reference the column by its name. In this case, you need to use the argument `with = FALSE` to select the column.
 ```
 myvar <- "species"
 penguins_dt[, myvar, with=F]
@@ -197,14 +200,14 @@ columns <- c('species', 'sex', 'island')
 penguins_dt[, columns, with=F]
 # Without with=F the above command will not work
 ```
-Roger that? If you want to select multiple columns directly, then enclose all the required column names in a list
+Roger that? If you want to select multiple columns directly, then enclose all the required column names in a list.
 ```
 penguins_dt[, .(species, sex, island)]
 ```
 
 #### 2(g). How to drop columns
 
-We can drop columns by placing the column names into a vector and use the `!` in front of them - returning all columns except those present in the vector.
+To remove columns, you can place the column names in a vector and use the `!` operator in front of them. This will return all columns except the ones listed in the vector.
 ```
 drop_cols <- c("species", "sex", "island")
 penguins_dt[, !drop_cols, with = FALSE]
@@ -212,8 +215,7 @@ penguins_dt[, !drop_cols, with = FALSE]
 
 #### 2(h). How to rename columns
 
-For this, we can use the `setnames()` function as normal for both `data.table` and `data.frame`.
-The `setnames()` function takes the current name and new name as arguments and changes the column names in place without any copying of data.
+To rename columns, we can use the `setnames()` function, which works for both `data.table` and `data.frame`. The `setnames()` function takes the current column name and the new name as arguments, and it changes the column names directly without creating a copy of the data.
 ```
 setnames(penguins_dt, 'penguinid', 'observation')
 colnames(penguins_dt)
@@ -222,7 +224,7 @@ colnames(penguins_dt)
 
 #### 2(i). Creating a new column from existing columns
 
-You can indeed create a new column as you normally might with `data.frame`, but with `data.table`, you can create a column from within square brackets - saving keystrokes
+You can create a new column in `data.table` just like you would in a `data.frame`. However, with `data.table`, you can create a column directly within the square brackets, which is more efficient and saves you extra keystrokes.
 ```
 # data.frame syntax (also works on data.table)
 penguins_dt$flipper_body_ratio <- penguins_dt$flipper_length_mm / penguins_dt$body_mass_g
@@ -240,11 +242,11 @@ penguins_dt
 
 #### 2(j). Grouping
 
-Let us now move on to the second major and awesome feature of R `data.table`: grouping using `by`.
-In base `R`, grouping is achieved by using the `aggregate()` function. This basic syntax can be a bit cumbersome and hard to remember
-While not sacrificing any functionality, we can use the `by` argument within square brackets.
-For example, in `penguins` data, we can use these functions to find out how to get the mean body mass for either sex.
-Since we want to see the body mass by sex, set `by = sex` inside the square brackets
+Now let's move on to the second key feature of `data.table`: grouping with by.
+
+In base `R`, grouping data is typically done with the `aggregate()` function. While functional, the syntax can be a bit clunky and difficult to recall. Fortunately, `data.table` offers a more streamlined approach with the by argument inside square brackets.
+
+For example, in the `penguins` dataset, we can easily calculate the mean body mass for each sex using `data.table`. To do this, we would set `by = sex` within the square brackets to group the data by sex and calculate the mean body mass for each group. This method is simpler and more intuitive, making it much easier to work with grouped data.
 ```
 # Mean body mass in grams by 'sex'
 penguins_dt[, .(mean_bodymass=mean(body_mass_g)), by=sex]
@@ -253,9 +255,9 @@ penguins_dt[, .(mean_bodymass=mean(body_mass_g)), by=sex]
 # You can even add multiple columns to the'by' argument.
 penguins_dt[, .(mean_bodymass=mean(body_mass_g)), by=.(sex, species)]
 ```
-Super, now you should feel more confident on how to use data.table to further you data manipulation expertise.
+Great! Now that you're more confident with using `data.table` for data manipulation, it's time to take a short break. Grab a cup of tea (or your beverage of choice) and **relax** for a moment.
 
-For now, take a breather, grab a cup of tea or drink of your choice before we change the subject a tad and look at how we can use `purrr` to build efficient workflows
+Afterward, we'll shift gears a bit and explore how to use `purrr` to build more efficient workflows in `R`. `purrr` is a powerful package that can help you streamline your code and perform operations more effectively, especially when working with lists and functions. Let's dive into that soon!
 
 ---
 ### 3. Efficient workflows with `purrr`
@@ -263,10 +265,11 @@ For now, take a breather, grab a cup of tea or drink of your choice before we ch
 
 #### 3(a). Introduction to `purrr`
 
-The `purrr` package is part of the `tidyverse` and focuses on functional programming, which is all about using functions to work with data. If you're not familiar with this concept, don't worry—it's just a way of automating repetitive tasks, similar to using functions like `apply()` in base `R`.
-At its core, `purrr` is designed to help you work with lists and perform iterations—that is, applying the same function to multiple elements, one at a time. Think of it as the `tidyverse`'s answer to base `R`'s `apply()` family, but with a more modern, flexible, and of course, tidy approach.
-If you’ve ever thought `purrr` seems too complicated to learn, this section will make it easier for you! We'll start with the `map()` functions, which are the foundation of `purrr`. By the end, you’ll see how powerful lists can be and how `purrr` can simplify your code.
-To get the most out of `purrr`, it helps to understand lists, the main type of data it works with. Here's how lists fit into `R`:
+The `purrr` package is part of the `tidyverse` and focuses on functional programming, which is essentially using functions to handle data in a structured and efficient way. If you're not familiar with this concept, don’t worry—it's essentially about automating repetitive tasks, similar to base `R`'s `apply()` functions. But `purrr` offers a more modern and streamlined approach to doing this.
+
+At its core, `purrr` is designed to work with lists and allow you to apply the same function to multiple elements of a list or vector, one element at a time. In other words, it helps you to iterate over a list or vector, applying a function to each element, which is a more efficient way of writing repetitive tasks in code. If you’ve ever felt that `purrr` looks complicated, don’t worry! This section will show you how to start using it, beginning with the most important functions—`map()` and its variants. These functions will help you understand the power of lists and how `purrr` can make your code more concise and easier to manage.
+
+Before diving into the specifics of `purrr`, it helps to understand lists, which are the primary data structure `purrr` works with. In `R`, lists are a flexible way to store different types of data together in one object, making them especially useful for functional programming. Here’s a quick breakdown of lists in `R`:
 ```
 my_first_list <- list(my_number = 5,
                       my_vector = c("a", "b", "c"),
@@ -276,37 +279,35 @@ my_first_list
 
 #### 3(b). Map functions: Easier iteration in `R`
 
-A map function is a tool that lets you apply the same action or function to every element of an object. This could mean applying a function to each entry of a list, each element of a vector, or even each column of a data frame.
-If you’ve used base `R`'s `apply()` functions, you already know how map functions work. 
+A map function is a tool that allows you to apply the same action or function to every element of an object, such as each entry in a list, each element in a vector, or even each column of a data frame.
 
-The `apply()` family (like `lapply()`, `sapply()`, etc.) is great for performing repetitive tasks without writing a for-loop. However, these functions can be tricky because:
-- Their syntax is inconsistent (each one works slightly differently).
-- It’s sometimes unclear what type of object they’ll return (e.g., `sapply()` might return a list or vector).
+If you’ve used base `R`'s `apply()` functions, you’re already familiar with the concept behind map functions. The `apply()` family (like `lapply()`, `sapply()`, etc.) is helpful for automating repetitive tasks without needing to write a for-loop. However, these functions have a few drawbacks:
 
-In `purrr`, the name of the map function tells you what type of output it will produce. For example:
-- `map(.x, .f)` is the main mapping function and returns a list
-- `map_df(.x, .f)` returns a data frame
-- `map_dbl(.x, .f)` returns a numeric (double) vector
-- `map_chr(.x, .f)` returns a character vector
-- `map_lgl(.x, .f)` returns a logical vector
+Their syntax can be inconsistent (each function works slightly differently).
+It's often unclear what type of object they will return (e.g., `sapply()` might return either a list or a vector).
+In `purrr`, the name of the map function clearly tells you what type of output it will produce. For example:
 
-Consistent with the way of the `tidyverse`, the first argument of each mapping function is always the data object that you want to map over.
-The second argument is always the function that you want to iteratively apply to each element of the input object.
-The input object to any map function is always either a vector (of any type), a list, or a data frame.
+`map(.x, .f)` is the main mapping function and returns a **list**.
+`map_df(.x, .f)` returns a **data frame**.
+`map_dbl(.x, .f)` returns a **numeric (double) vector**.
+`map_chr(.x, .f)` returns a **character vector**.
+`map_lgl(.x, .f`) returns a **logical vector**.
+As is common with the `tidyverse`, the first argument of each map function is always the data you want to apply the function to, and the second argument is the function you want to apply to each element of the input object. The input object to any map function can be a vector (of any type), a list, or a data frame.
 
-Since the first argument is always the data, pipes (`%>%`) come in very handy, allowing us to string together many functions by piping an object into the first argument of the next function.
+Thanks to pipes (`%>%`), you can use map functions in a streamlined, readable way, passing the output of one function into the input of another. This makes it easy to string together several operations and apply them to your data in a tidy sequence.
 
 #### 3(c). Simplest usage: Repeated looping with map
 
-Fundamentally, maps are for iteration. In the below example, we will iterate through the vector `c(1, 4, 7)` by adding 10 to each entry.
-This function applied to a single number, which we will call .x can be defined as:
+Maps are essentially used for iteration. In the example below, we will iterate through the vector `c(1, 4, 7)` and add 10 to each element.
+
+The function applied to each individual number (referred to as `.x`) can be defined as follows:
 ```
 library(tidyverse)
 addTen <- function(.x) {
   return(.x + 10)
 }
 ```
-Then we can use the `map()` function which will iterate `addTen()` across all entries of the vector, `.x = c(1, 4, 7)`, and return the output as a list.
+We can then use the `map()` function, which will apply `addTen()` to each element of the vector `.x = c(1, 4, 7)`, and return the results as a list.
 ```
 map(.x = c(1, 4, 7),
     .f = addTen)
@@ -316,14 +317,14 @@ What's even better is that you don't need to specify the argument names.
 map(c(1, 4, 7), addTen)
 # We can see the output applies the condition to each element of the vector: 1 = 11, 4 = 14, 7 = 17
 ```
-No matter if the input object is a vector, a list or a data frame, `map()` always returns a list.
+Regardless of whether the input is a vector, list, or data frame, the `map()` function always returns a list.
 ```
 map(list(1, 4, 7), addTen)
 map(data.frame(a = 1, b = 4, c = 7), addTen)
 # Roger that?
 ```
 
-If we wanted the output to be some other object type, we need to use a different function. For instance to map the input to a numeric (double vector), you can use the `map_dbl()` ("map to double") function.
+If you want the output to be a different type, you'll need to use a different function. For example, to map the input to a numeric (double) vector, you can use the `map_dbl()` function (which stands for "map to double").
 ```
 map_dbl(c(1, 4, 7), addTen)
 ```
@@ -331,24 +332,20 @@ Using the same logic, we can map to a character vector using `map_chr()` ("map t
 ```
 map_chr(c(1, 4, 7), addTen)
 ```
-If we wanted to return a data frame then we can use the `map_df()` function.
-But tread carefully and make sure that for each iteration you have consistent column names.
-`map_df` will automatically bind the rows of each iteration.
-For the code below, we want to return a data frame where the columns correspond to the original number and the number plus ten.
+If you want to return a data frame, you can use the `map_df()` function. However, be cautious to ensure that each iteration returns consistent column names. `map_df()` will automatically bind the rows from each iteration into a single data frame. In the example below, we aim to return a data frame where one column contains the original number and the other contains the number plus ten.
 ```
 map_df(c(1, 4, 7), function(.x) {
   return(data.frame(old_number = .x, 
                     new_number = addTen(.x)))
 })
 ```
-The function `modify()` is similar in nature to `map()` functions, but always returns an object the same type as the input object.
+The `modify()` function works similarly to the `map()` functions, but with one key difference: it always returns an object of the same type as the input. This means if you pass a list into `modify()`, it will return a modified list, and if you pass a vector, it will return a modified vector.
 ```
 modify(c(1, 4, 7), addTen)
 modify(list(1, 4, 7), addTen)
 modify(data.frame(1, 4, 7), addTen)
 ```
-Modify also has `modify_if()` that only applies the function to elements that satisfy a specific criteria.
-This is specified by a "predicate function", the second argument called `.p`  
+The `modify_if()` function is a variant of `modify()` that applies a function only to elements that meet a specific condition. This condition is defined by a "predicate function," which is the second argument, `.p`. The predicate function returns `TRUE` for elements that should be modified and `FALSE` for those that should not.
 ```
 modify_if(.x = list(1, 4, 7),
           .p = function(x) x > 5,
@@ -358,16 +355,16 @@ Looking at the output for the above code, we can see that only the third entry i
 
 #### 3(d). The tilde-dot shorthand for functions and tidying
 
-To make the code more concise you can use the tilde-dot shorthand for anonymous functions.
-In 'R', an anonymous function is a function that is created on the fly without being given a name. Instead of defining it separately and assigning it to a variable, you define it directly in the code where it's needed. This is particularly useful in `purrr` when you need to apply a quick custom operation inside a map function.
-Unlike normal function arguments that can by be anything you like, the tilde-dot function argument is always `.x`.
-Thus, instead of defining the `addTen()` function separately, we could use the tilde-dot shorthand..
+To make the code more concise, you can use the tilde-dot shorthand for anonymous functions in `R`. An anonymous function is one that is created directly within the code, without needing to assign it a name. This is especially useful in `purrr` when you need to perform a quick operation within a map function.
+
+Instead of creating a function like `addTen()` and defining it separately, you can directly use the tilde-dot shorthand. In this shorthand, the argument is always `.x`, which refers to the input element being processed. This allows for a more streamlined and compact approach to defining functions on the fly.
 ```
 map_dbl(c(1, 4, 7), ~{.x + 10})
 ```
-For the next section of this tutorial we will use the LPI birds dataset from the Living Planet Index. This can be accessed through the <a href="https://github.com/EdDataScienceEES/tutorial-jackegriffin.git">GitHub repository</a>.
-For this task, some functions will first be demonstrated using a simple, non-consequantial numeric example just to get a feel for what is going on.
-Then, the functions will be demonstrated using a more complex practical example based on the LPI dataset.
+
+In the next section of this tutorial, we will be working with the LPI birds dataset from the Living Planet Index, which is available through the <a href="https://github.com/EdDataScienceEES/tutorial-jackegriffin.git">GitHub repository</a>.
+
+To start, we will introduce some functions using a simple, non-consequential numeric example. This will help you get a feel for the mechanics of these functions. Afterward, we'll move on to more complex practical examples using the LPI dataset, so you can see how the techniques apply to real-world data.
 So:
 ```
 # Import data
@@ -398,27 +395,28 @@ LPI_data$scalepop <- (LPI_data$pop - min(LPI_data$pop, na.rm = TRUE)) /
 LPI_data$Common.Name <- as.factor(LPI_data$Common.Name)
 LPI_data$family <- as.factor(LPI_data$Family)
 ```
-Since LPI_data is a data frame, the `map_()` functions will iterate over each column. An example of simple usage of the `map_()` functions is to summarize each column. 
-For instance, you can identify the type of each column by applying the `class()` function to each column. 
-Since the output of the `class()` function is a character, we will use the `map_chr()` function.
-Apply the `class()` function to each column
+Since `LPI_data` is a data frame, the `map_()` functions will iterate over each column. A simple example of using the `map_()` functions is to summarize each column. For example, you can identify the type of each column by applying the `class()` function to it. Since the output of the `class()` function is a character string, we would use the `map_chr()` function for this task.
+
+To apply the `class()` function to each column, you can use:
 ```
 LPI_data %>% map_chr(class)
+# This will return a character vector with the class type of each column in the LPI_data data frame
 ```
-This is very handy to get a quick snapshot of what you're working with in a dataset.
-Also, using pipes is great to use instead of adding the data again as an argument.
+This is a very convenient way to quickly assess what you're working with in a dataset. Additionally, using pipes (`%>%`) is a great approach, as it avoids repeating the data object as an argument in each function call.
 
-Similarly, if you want to identify the number of distinct values in each column, you could apply the `n_distinct()` function from the `dplyr` package to each column.
-Since the output of `n_distinct()` is a numeric (a double), you may want to use the `map_dbl()` function. This would provide the results of each iteration as a concatenation in a numeric vector.
-Apply the `n_distinct()` function to each column.
+Similarly, if you want to identify the number of distinct values in each column, you can apply the `n_distinct()` function from the `dplyr` package to each column. Since the output of `n_distinct()` is a numeric value (a double), you should use the `map_dbl()` function to ensure the results are returned as a numeric vector.
+
+To apply the `n_distinct()` function to each column, you can use:
 ```
 LPI_data %>% map_dbl(n_distinct)
+# This will give you a numeric vector with the number of distinct values for each column in the LPI_data data frame 
 ```
 
-We can make this a bit more complicated by combining a few different summaries using `map_df()`.
-When making things a bit more complicated we normally also have to define anonymous function to apply to each column.
-We can do this using the tilde-dot notation too.
-Then, once the columns have been iterated through, the `map_df()` function combines the data frames row-wise into a single data frame.
+We can make things a bit more complex by combining several summary functions using `map_df()`. When doing this, we often need to define an anonymous function for each column. This can be done easily using the tilde-dot notation.
+
+After applying the functions to each column, `map_df()` combines the results into a single data frame, stacking the summaries row by row. This is helpful when you want to apply multiple functions to each column and view the results together in one table.
+
+This method allows us to quickly create a more detailed summary of our data, applying different functions to each column and combining the outputs in a neat, structured format.
 ```
 LPI_data %>% map_df(~(data.frame(n_distinct = n_distinct(.x),
                                   class = class(.x))))
@@ -434,22 +432,23 @@ LPI_data %>% map_df(~(data.frame(n_distinct = n_distinct(.x),
 #### 3(e). Maps with multiple input objects
 
 Now, enough messing about. Time for some fancier stuff.
-Let's say we want to perform a map that iterates through two objects.
-The following code uses map functionns to create a list of plots.
-To do this, the map function that maps over two objects instead of just 1 is called `map2()`
-The first two arguments are the two objects you want to iterate over, and the third is the function (with two arguments, one for each object)
+
+Imagine we want to iterate through two objects at the same time. For this, we use the `map2()` function. Unlike the regular `map()` function, which only works with one object, `map2()` allows us to apply a function across two different objects simultaneously.
+
+In this case, the first two arguments of `map2()` are the two objects you want to iterate over, and the third is the function you want to apply to each pair of elements from those objects. Each pair will be passed as arguments to the function, enabling you to perform more complex operations across both objects at once.
 ```
 map2(.x = object1, # the first object to iterate over
      .y = object2, # the second object to iterate over
      .f = plotFunction(.x, .y))
 ```
-ERROR: Dont worry, this code wont run, and is purely exemplary - object1 and object2 need to be properly defined when putting this into practice.
-First, you need to define a vector (or list) and a paired vector (or list) that you want to iterate through.
-In this example, using LPI data:
-- the first iteration will correspond to the first family in the family vector and the first year in the year vector
-- the second iteration will correspond to the second family in the family vector and the second year in the year vector
+**ERROR**: Don't worry, this code is just an example and won't run as is—`object1` and `object2` need to be properly defined for actual use.
 
-First, let's get our vectors of family and years, starting by obtaining all distinct combinations of families and years that appear in the data
+To begin, you'll need to create two vectors (or lists) that you want to iterate over in parallel. In the case of the LPI data:
+
+- The first iteration will pair the first family from the family vector with the first year from the year vector.
+- The second iteration will pair the second family and year, and so on.
+  
+Start by extracting the unique combinations of family and year that appear in your data. This will give you the values you need for the iteration process.
 ```
 cfyear <- LPI_data %>%
   distinct(Family, year) # Use the names consistent with how you've formatted the columns in your dataset
