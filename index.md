@@ -1,4 +1,4 @@
-
+![Tutorial banner](banner.png)
 # Welcome to my R Coding Club tutorial on Advanced Package Literacy in `R`!
 
 
