@@ -1,8 +1,3 @@
----
-layout: page
-title: "Coding Club: A Positive Peer-Learning Community"
-banner: "../assets/img/banner/slider-bg-pale.jpg"
----
 
 # Welcome to my R Coding Club tutorial on Advanced Package Literacy in `R`!
 
