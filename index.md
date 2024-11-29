@@ -493,12 +493,19 @@ plot_list <- map2(.x = family,
                       ggtitle(glue::glue(.x, " ", .y))
                   })
 ```
+
+<img src="Rplot.png" alt="first plot entry" width="600"/>
+
 We can look at a few of the entries of the list to see that they make sense.
 ```
 plot_list[[1]]
 plot_list[[22]]
 plot_list[[76]]
 ```
+
+<img src="Rplot22.png" alt="22nd plot entry" width="600"/>
+
+<img src="Rplot76.png" alt="76th plot entry" width="600"/>
 
 #### 3(f). List columns and nested data frames
 
