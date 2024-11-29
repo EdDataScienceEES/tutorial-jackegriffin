@@ -120,7 +120,11 @@ You can convert any `data.frame` into `data.table` using any one of these two ap
 1. `data.table(df)` or `as.data.table(df)`, where `(df)` is your chosen data frame
 2. `setDT(df)`  
 
-The difference between these two approaches is that `data.table(df)` will create a copy of `(df)` and convert it to a `data.table`, whereas `setDT(df)` converts it to a `data.table` and fully replaces it (converts it inplace, if you will)
+The difference between these two approaches is that `data.table(df)` will create a copy of `(df)` and convert it to a `data.table`, whereas `setDT(df)` converts it to a `data.table` and fully replaces it (converts it inplace, if you will).
+Now we will work with some great penguin data from `R`'s `palmerpenguins` package.
+
+![palmerpenguins diagram](palmerpenguins.png)
+
 ```
 # Lets load a default dataframe from R's default datasets package and palmerpenguins package
 data(penguins)
