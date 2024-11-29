@@ -20,7 +20,7 @@ __Licensing:__
 
 This work is licensed under [Creative Commons Attribution-ShareAlike 4.0 International License](https://creativecommons.org/licenses/by-sa/4.0/)
 
-Living Planet Index data use policy can be found [here](https://livingplanetindex.org/documents/data_agreement.pdf)
+Living Planet Index data use policy can be found [here](https://livingplanetindex.org/documents/data_agreement.pdf).
 
 __Useful links:__
 - https://ourcodingclub.github.io/tutorials/tutorials/ - Coding Club tutorial on how to make tutorials
